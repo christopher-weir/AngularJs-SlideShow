@@ -24,9 +24,12 @@ angular.module('iln-slideshow')
 
             // load first slide
             $scope.init = function(){
+                // get the json data for the slides
+                // TODO make this different mb a service?
                 slide_data = $rootScope.SLIDES_JSON.slides;
+                // get and set the max number of slides
                 max_slide = ( slide_data.length ) - 1;
-
+                // load up the first slide
                 $scope.animateInNextSlide( 0 );
             };
 
@@ -48,23 +51,7 @@ angular.module('iln-slideshow')
                 }
             };
 
-            // call the next slide
-            $scope.menuPress = function( _slide ){
-
-                if( _slide !== current_slide  && !slide_transitioning ){
-
-                    if( _slide <= current_slide ){
-                        animation_direction = '-reverse';
-                    }else{
-                        animation_direction = '';
-                    }
-
-                    next_slide = _slide;
-                    slide_transitioning = true;
-                    $scope.animateOutCurrentSlide();
-                }
-            };
-
+            // call the previous slide
             $scope.prevSlide = function(){
                 if( current_slide !== min_slide && !slide_transitioning ){
                     next_slide = current_slide - 1;
@@ -81,6 +68,7 @@ angular.module('iln-slideshow')
                 }
             };
 
+            // animatie out the current slde
             $scope.animateOutCurrentSlide = function(){
                 // css animate out the slide
                 $scope.animateSlideCss = 'slide-animate-out' + animation_direction;
@@ -93,8 +81,11 @@ angular.module('iln-slideshow')
                 }, 700);
 
             };
+
+            // fully remove the current slide from the dom
             $scope.removeSlide = function(){
 
+                // remove and clear current slide
                 angular.element(
                     document.getElementById('slide' + String( current_slide ))
                 ).remove();
@@ -103,13 +94,14 @@ angular.module('iln-slideshow')
                 $timeout(function(){
                     // slide has animated out remove current slide
                     $scope.animateInNextSlide( next_slide );
-                }, 100);
+                }, 10);
             };
 
+            // animate in the next slide
             $scope.animateInNextSlide = function( _next ){
-
+                // set the new current slide
                 current_slide = _next;
-
+                // add in the new directive
                 angular.element(
                     document.getElementById('slide-container')
                 ).append(
@@ -125,12 +117,13 @@ angular.module('iln-slideshow')
                     slide_transitioning = false;
                     // set the animation
                     $scope.animateSlideCss = 'slide-animate-in' + animation_direction;
-                    // global slide complete
+                    // broadcast global slide complete
                     $rootScope.$broadcast('slideTransitionComplete', current_slide);
-                }, 100);
+                }, 10);
 
             };
 
+            // jump to a specific slide
             $scope.$on( 'jumpToSlide', function( _s, _data ){
                 next_slide = _data;
 
@@ -144,16 +137,18 @@ angular.module('iln-slideshow')
                 $scope.animateOutCurrentSlide();
             });
 
+            // track next press
             $scope.$on( 'keypressNext', function(){
                 $scope.nextSlide();
             });
 
+            // track prev press
             $scope.$on( 'keypressPrev', function(){
                 $scope.prevSlide();
             });
 
+            // init the directive
             $scope.init();
-
         }
     ])
     /**
@@ -236,8 +231,8 @@ angular.module('iln-slideshow')
             restrict: 'E',
             controller: 'SlideshowSlideCtrl',
             templateUrl: function( elem, attrs ) {
-               return attrs.templateUrl || 'slides/slide.html'
-           }
+               return attrs.templateUrl || 'slides/slide.html';
+            }
         };
     })
 ;
