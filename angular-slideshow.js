@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('iln-slideshow')
+angular.module('iln-slideshow', [])
     /**
      * The slideshow directive controller
      */
@@ -26,7 +26,8 @@ angular.module('iln-slideshow')
             $scope.init = function(){
                 // get the json data for the slides
                 // TODO make this different mb a service?
-                slide_data = $rootScope.SLIDES_JSON.slides;
+                slide_data = $scope.SLIDES_JSON().slides;
+                console.log(slide_data);
                 // get and set the max number of slides
                 max_slide = ( slide_data.length ) - 1;
                 // load up the first slide
@@ -163,7 +164,7 @@ angular.module('iln-slideshow')
             $scope.current_slide = 0;
 
             $scope.init = function(){
-                $scope.slide_data = $rootScope.SLIDES_JSON.slides;
+                // $scope.slide_data = $rootScope.SLIDES_JSON.slides;
             };
 
             $scope.goToSlide = function( _index ){
@@ -210,7 +211,9 @@ angular.module('iln-slideshow')
         return {
             restrict: 'E',
             controller: 'SlideshowCtrl',
-            templateUrl: 'slides/slideshow.html'
+            template: '<section id="slideshow"><div id="slide-container" ng-class="animateSlideCss"></div><button id="slide-next" class="nav-arrow" ng-click="nextSlide()"></button><button id="slide-previous" class="nav-arrow" ng-click="prevSlide()"></button><nav class="pagination"><iln-slideshow-pagination></iln-slideshow-pagination></nav></section>',
+            scope: { SLIDES_JSON: '&slideJson' }
+
         };
     })
     /**
@@ -220,7 +223,7 @@ angular.module('iln-slideshow')
         return {
             restrict: 'E',
             controller: 'SlideshowPaginationCtrl',
-            templateUrl: 'slides/pagination.html'
+            template: '<div></div>'
         };
     })
     /**
