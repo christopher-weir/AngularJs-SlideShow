@@ -13,27 +13,47 @@ angular.module('iln-slideshow', [])
             var maxSlides       = 0;
             var minSlides       = 0;
 
-            return  {
-                setSlideShowData: function( _data ){
-                    slideData = _data;
-                },
+            // Slideshow factory functions
+            function slideShow() {
+                console.log('the');
+            }
 
-                getSlideShowData: function(){
-                    return slideData;
-                },
+            function setSlideShowData( _data ){
+                slideData = _data;
+                console.log( slideData );
+            }
 
-                callNextSlide: function(){
-                    console.log('next');
-                },
+            function setSlideShowDataAjax( _data, callback ){
+                slideData = _data;
+                return callback();
+            }
 
-                callPreviousSlide: function(){
-                    console.log('prev');
-                },
+            function getSlideShowData(){
+                return slideData;
+            }
 
-                goToSlide: function( _slide ){
-                    console.log('go to :' + _slide);
-                }
+            function callNextSlide(){
+                console.log('next');
+            }
+
+            function callPreviousSlide(){
+                console.log('prev');
+            }
+
+            function goToSlide( _slide ){
+                console.log('go to :' + _slide);
+            }
+
+            var service = {
+                setSlideShowData        : setSlideShowData,
+                setSlideShowDataAjax    : setSlideShowDataAjax,
+                getSlideShowData        : getSlideShowData,
+                callNextSlide           : callNextSlide,
+                callPreviousSlide       : callPreviousSlide,
+                goToSlide               : goToSlide
             };
+
+            return service;
         }
     ])
 
@@ -45,7 +65,8 @@ angular.module('iln-slideshow', [])
         '$compile',
         '$timeout',
         '$rootScope',
-        function( $scope, $compile, $timeout, $rootScope ) {
+        '$IlnSlideshow',
+        function( $scope, $compile, $timeout, $rootScope, $IlnSlideshow ) {
 
             var current_slide = 0;
             var next_slide = 0;
