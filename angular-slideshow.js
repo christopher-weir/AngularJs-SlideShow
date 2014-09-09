@@ -1,10 +1,46 @@
 'use strict';
 
 angular.module('iln-slideshow', [])
+
+
+    .factory('$IlnSlideshow', [
+        '$http',
+        function( $http ) {
+
+            var slideData       = {};
+            var currentSlide    = 0;
+            var nextSlide       = 0;
+            var maxSlides       = 0;
+            var minSlides       = 0;
+
+            return  {
+                setSlideShowData: function( _data ){
+                    slideData = _data;
+                },
+
+                getSlideShowData: function(){
+                    return slideData;
+                },
+
+                callNextSlide: function(){
+                    console.log('next');
+                },
+
+                callPreviousSlide: function(){
+                    console.log('prev');
+                },
+
+                goToSlide: function( _slide ){
+                    console.log('go to :' + _slide);
+                }
+            };
+        }
+    ])
+
     /**
      * The slideshow directive controller
      */
-    .controller( 'SlideshowCtrl', [
+    .controller( 'IlnSlideshowCtrl', [
         '$scope',
         '$compile',
         '$timeout',
@@ -74,12 +110,17 @@ angular.module('iln-slideshow', [])
                 // css animate out the slide
                 $scope.animateSlideCss = 'slide-animate-out' + animation_direction;
 
+                // animation out offset
+                var animationOutOffset = ( slide_data[ current_slide ].out_offset ) ? 1000 : 1000;
+
+                console.log( animationOutOffset );
+
                 $timeout(function(){
                     // remove the css
                     $scope.animateSlideCss = 'space';
                     // slide has animated out remove current slide
                     $scope.removeSlide();
-                }, 700);
+                }, 1000);
 
             };
 
@@ -155,7 +196,7 @@ angular.module('iln-slideshow', [])
     /**
      * The controller for the pagination navigation
      */
-    .controller( 'SlideshowPaginationCtrl', [
+    .controller( 'IlnSlideshowPaginationCtrl', [
         '$scope',
         '$rootScope',
         function( $scope, $rootScope ) {
@@ -193,7 +234,7 @@ angular.module('iln-slideshow', [])
     /**
      * The controller for the individual slide
      */
-    .controller( 'SlideshowSlideCtrl', [
+    .controller( 'IlnSlideshowSlideCtrl', [
         '$scope',
         function( $scope ) {
 
@@ -210,7 +251,7 @@ angular.module('iln-slideshow', [])
     .directive('ilnSlideshow', function() {
         return {
             restrict: 'E',
-            controller: 'SlideshowCtrl',
+            controller: 'IlnSlideshowCtrl',
             template: '<section id="slideshow"><div id="slide-container" ng-class="animateSlideCss"></div><button id="slide-next" class="nav-arrow" ng-click="nextSlide()"></button><button id="slide-previous" class="nav-arrow" ng-click="prevSlide()"></button><nav class="pagination"><iln-slideshow-pagination></iln-slideshow-pagination></nav></section>',
             scope: { SLIDES_JSON: '&slideJson' }
 
@@ -222,7 +263,7 @@ angular.module('iln-slideshow', [])
     .directive('ilnSlideshowPagination', function() {
         return {
             restrict: 'E',
-            controller: 'SlideshowPaginationCtrl',
+            controller: 'IlnSlideshowPaginationCtrl',
             template: '<div></div>'
         };
     })
@@ -232,7 +273,7 @@ angular.module('iln-slideshow', [])
     .directive('ilnSlideshowSlide', function() {
         return {
             restrict: 'E',
-            controller: 'SlideshowSlideCtrl',
+            controller: 'IlnSlideshowSlideCtrl',
             templateUrl: function( elem, attrs ) {
                return attrs.templateUrl || 'slides/slide.html';
             }
