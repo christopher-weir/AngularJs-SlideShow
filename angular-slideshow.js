@@ -14,36 +14,78 @@ angular.module('iln-slideshow', [])
             var minSlides       = 0;
 
             // Slideshow factory functions
+
+            /**
+             * Set the current slide
+             * @name setCurrentSlide
+             * @param { Number } _slide - the current slide
+             *
+             */
             function setCurrentSlide( _slide ){
                 currentSlide = _slide;
             }
 
-            function setNextSlide(){
-                return nextSlide;
+            /**
+             * Set the next slide
+             * @name setNextSlide
+             * @param { Number } _slide - the next slide
+             *
+             */
+            function setNextSlide( _slide ){
+                nextSlide = _slide;
             }
 
+            /**
+             * Set the data of the slides and the max slides
+             * @name setSlideData
+             * @param {array} _data - the array of slides
+             * @return {function} callback - when all done
+             *
+             */
             function setSlideData( _data, callback ){
-                slides = _data;
-                maxSlides = ( slides.length ) - 1;
+                slides      = _data;
+                maxSlides   = ( slides.length ) - 1;
 
-                 console.log( maxSlides );
                 return callback();
             }
 
+            /**
+             * Return the data of a single slide
+             * @name getSlideData
+             * @param {number} _slide - the number of the slide
+             * @return {object} slides - the single slide
+             *
+             */
             function getSlideData( _slide ){
                 return slides[ _slide ];
             }
 
+            /**
+             * Get the current slide number
+             * @name getCurrentSlide
+             * @return {number} currentSlide
+             *
+             */
             function getCurrentSlide(){
                 return currentSlide;
             }
 
+            /**
+             * Get the current next slide number
+             * @name getNextSlide
+             * @return {number} nextSlide
+             *
+             */
             function getNextSlide(){
                 return nextSlide;
             }
 
+            /**
+             * Call the next slide
+             * @name callNextSlide
+             *
+             */
             function callNextSlide(){
-                console.log('callNextSlide');
 
                 if( currentSlide !== maxSlides ){
                     nextSlide = currentSlide + 1;
@@ -57,6 +99,11 @@ angular.module('iln-slideshow', [])
 
             }
 
+            /**
+             * Call the previous slide
+             * @name callPreviousSlide
+             *
+             */
             function callPreviousSlide(){
 
                 if( currentSlide !== minSlides ){
@@ -70,11 +117,14 @@ angular.module('iln-slideshow', [])
                 }
             }
 
+            /**
+             * Jump to a specific slide
+             * @name goToSlide
+             * @param {number} _slide
+             *
+             */
             function goToSlide( _slide ){
-                console.log('go to :' + _slide);
-
                 $rootScope.$broadcast('IlnSlideshowGoToSlide', _slide);
-
             }
 
             var service = {
