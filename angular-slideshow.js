@@ -4,46 +4,86 @@ angular.module('iln-slideshow', [])
 
 
     .factory('$IlnSlideshow', [
-        '$http',
-        function( $http ) {
+        '$rootScope',
+        function( $rootScope ) {
 
-            var slideData       = {};
+            var slides          = [];
             var currentSlide    = 0;
             var nextSlide       = 0;
             var maxSlides       = 0;
             var minSlides       = 0;
 
             // Slideshow factory functions
-            function setSlideShowData( _data ){
-                slideData = _data;
-                console.log( slideData );
+            function setCurrentSlide( _slide ){
+                currentSlide = _slide;
             }
 
-            function setSlideShowDataAjax( _data, callback ){
-                slideData = _data;
+            function setNextSlide(){
+                return nextSlide;
+            }
+
+            function setSlideData( _data, callback ){
+                slides = _data;
+                maxSlides = ( slides.length ) - 1;
+
+                 console.log( maxSlides );
                 return callback();
             }
 
-            function getSlideShowData(){
-                return slideData;
+            function getSlideData( _slide ){
+                return slides[ _slide ];
+            }
+
+            function getCurrentSlide(){
+                return currentSlide;
+            }
+
+            function getNextSlide(){
+                return nextSlide;
             }
 
             function callNextSlide(){
-                console.log('next');
+                console.log('callNextSlide');
+
+                if( currentSlide !== maxSlides ){
+                    nextSlide = currentSlide + 1;
+                    goToSlide( nextSlide );
+                }
+
+                if( currentSlide === maxSlides ){
+                    nextSlide = 0;
+                    goToSlide( nextSlide );
+                }
+
             }
 
             function callPreviousSlide(){
-                console.log('prev');
+
+                if( currentSlide !== minSlides ){
+                    nextSlide = currentSlide - 1;
+                    goToSlide( nextSlide );
+                }
+
+                if( currentSlide === minSlides ){
+                    nextSlide = maxSlides;
+                    goToSlide( nextSlide );
+                }
             }
 
             function goToSlide( _slide ){
                 console.log('go to :' + _slide);
+
+                $rootScope.$broadcast('IlnSlideshowGoToSlide', _slide);
+
             }
 
             var service = {
-                setSlideShowData        : setSlideShowData,
-                setSlideShowDataAjax    : setSlideShowDataAjax,
-                getSlideShowData        : getSlideShowData,
+                setSlideData            : setSlideData,
+                getSlideData            : getSlideData,
+                setCurrentSlide         : setCurrentSlide,
+                getCurrentSlide         : getCurrentSlide,
+                setNextSlide            : setNextSlide,
+                getNextSlide            : getNextSlide,
                 callNextSlide           : callNextSlide,
                 callPreviousSlide       : callPreviousSlide,
                 goToSlide               : goToSlide
@@ -64,77 +104,56 @@ angular.module('iln-slideshow', [])
         '$IlnSlideshow',
         function( $scope, $compile, $timeout, $rootScope, $IlnSlideshow ) {
 
-            var current_slide = 0;
-            var next_slide = 0;
-            var max_slide = 0;
-            var min_slide = 0;
-            var slide_data = {};
             var slide_transitioning = false;
-            var animation_direction = '';
+            var slide_init  = true;
 
             $scope.animateSlideCss = '';
 
 
             // load first slide
             $scope.init = function(){
-                // get the json data for the slides
-                // TODO make this different mb a service?
-                slide_data = $scope.SLIDES_JSON().slides;
-                console.log(slide_data);
-                // get and set the max number of slides
-                max_slide = ( slide_data.length ) - 1;
-                // load up the first slide
-                $scope.animateInNextSlide( 0 );
+                // set the slideshow data
+                // when complete call the first slide
+
+                if( $scope.SLIDES_JSON().images ){
+                    preloadImages( $scope.SLIDES_JSON().images );
+                }
+
+                $IlnSlideshow.setSlideData( $scope.SLIDES_JSON().slides, function(){
+                    $IlnSlideshow.goToSlide( 0 );
+                });
+
             };
 
             // call the next slide
             $scope.nextSlide = function(){
-
-                if( current_slide !== max_slide && !slide_transitioning ){
-                    next_slide = current_slide + 1;
+                console.log('press');
+                if( !slide_transitioning ){
                     slide_transitioning = true;
-                    animation_direction = '';
-                    $scope.animateOutCurrentSlide();
-                }
-
-                if( current_slide === max_slide && !slide_transitioning ){
-                    next_slide = 0;
-                    slide_transitioning = true;
-                    animation_direction = '';
-                    $scope.animateOutCurrentSlide();
+                    $IlnSlideshow.callNextSlide();
                 }
             };
 
-            // call the previous slide
-            $scope.prevSlide = function(){
-                if( current_slide !== min_slide && !slide_transitioning ){
-                    next_slide = current_slide - 1;
+            // call the next slide
+            $scope.previousSlide = function(){
+                if( !slide_transitioning ){
                     slide_transitioning = true;
-                    animation_direction = '-reverse';
-                    $scope.animateOutCurrentSlide();
-                }
-
-                if( current_slide === min_slide && !slide_transitioning ){
-                    next_slide = max_slide;
-                    slide_transitioning = true;
-                    animation_direction = '-reverse';
-                    $scope.animateOutCurrentSlide();
+                    $IlnSlideshow.callPreviousSlide();
                 }
             };
 
             // animatie out the current slde
             $scope.animateOutCurrentSlide = function(){
                 // css animate out the slide
-                $scope.animateSlideCss = 'slide-animate-out' + animation_direction;
+                $scope.animateSlideCss = 'slide-animate-out';
 
                 // animation out offset
-                var animationOutOffset = ( slide_data[ current_slide ].out_offset ) ? 1000 : 1000;
-
-                console.log( animationOutOffset );
+                // var animationOutOffset = ( slide_data[ current_slide ].out_offset ) ? 1000 : 1000;
+                // console.log( animationOutOffset );
 
                 $timeout(function(){
                     // remove the css
-                    $scope.animateSlideCss = 'space';
+                    $scope.animateSlideCss = '';
                     // slide has animated out remove current slide
                     $scope.removeSlide();
                 }, 1000);
@@ -146,65 +165,84 @@ angular.module('iln-slideshow', [])
 
                 // remove and clear current slide
                 angular.element(
-                    document.getElementById('slide' + String( current_slide ))
+                    document.getElementById('iln-slide-wrap-' + String( $IlnSlideshow.getCurrentSlide() ))
                 ).remove();
 
                 // give the dom some time to click over and add in the next slide
                 $timeout(function(){
                     // slide has animated out remove current slide
-                    $scope.animateInNextSlide( next_slide );
+                    $scope.animateInNextSlide( $IlnSlideshow.getNextSlide() );
                 }, 10);
             };
 
             // animate in the next slide
             $scope.animateInNextSlide = function( _next ){
                 // set the new current slide
-                current_slide = _next;
+                $IlnSlideshow.setCurrentSlide( _next );
                 // add in the new directive
+                console.log('add');
+                console.log($IlnSlideshow.getSlideData( $IlnSlideshow.getCurrentSlide() ));
+
                 angular.element(
-                    document.getElementById('slide-container')
+                    document.getElementById('iln-slide-container')
                 ).append(
                     $compile(
-                        '<iln-slideshow-slide id="slide' +
-                            String( current_slide ) +
+                        '<iln-slideshow-slide id="iln-slide-wrap-' +
+                            String( $IlnSlideshow.getCurrentSlide() ) +
                         '" template-url="' +
-                            slide_data[ current_slide ].template +
+                            // this might not work check
+                            $IlnSlideshow.getSlideData( $IlnSlideshow.getCurrentSlide() ).template +
+
                         '"></iln-slideshow-slide>')($scope));
 
                 // give the dom some time to click over and add in the animation
                 $timeout(function(){
                     slide_transitioning = false;
                     // set the animation
-                    $scope.animateSlideCss = 'slide-animate-in' + animation_direction;
+                    $scope.animateSlideCss = 'slide-animate-in';
                     // broadcast global slide complete
-                    $rootScope.$broadcast('slideTransitionComplete', current_slide);
+                    $rootScope.$broadcast('slideTransitionComplete', $IlnSlideshow.getCurrentSlide() );
                 }, 10);
 
             };
 
             // jump to a specific slide
-            $scope.$on( 'jumpToSlide', function( _s, _data ){
-                next_slide = _data;
+            $scope.$on( 'IlnSlideshowGoToSlide', function( _s, _data ){
+                // next_slide = _data;
 
-                if( next_slide <= current_slide ){
-                    animation_direction = '-reverse';
+                // slide_transitioning = true;
+                // $scope.animateOutCurrentSlide();
+
+                if( slide_init ){
+                    slide_init = false;
+                    $scope.animateInNextSlide( _data );
                 }else{
-                    animation_direction = '';
+                    $scope.animateOutCurrentSlide();
                 }
 
-                slide_transitioning = true;
-                $scope.animateOutCurrentSlide();
             });
 
-            // track next press
-            $scope.$on( 'keypressNext', function(){
-                $scope.nextSlide();
-            });
 
-            // track prev press
-            $scope.$on( 'keypressPrev', function(){
-                $scope.prevSlide();
-            });
+            // preload images
+            function preloadImages( _data ){
+                var slideImages = _data;
+
+                console.log(slideImages);
+
+                for( var i = 0; i < slideImages.length; i++ ){
+                    angular.element(
+                        document.getElementById('img-preload')
+                    ).append('<img src="' + slideImages[i] + '" width="1" height="1"></img>');
+
+                    // remove container on last image
+                    if( i === slideImages.length - 1 ){
+                        angular.element(
+                            document.getElementById('img-preload')
+                        ).remove();
+                        console.log('remove');
+                    }
+                }
+            }
 
             // init the directive
             $scope.init();
@@ -269,7 +307,7 @@ angular.module('iln-slideshow', [])
         return {
             restrict: 'E',
             controller: 'IlnSlideshowCtrl',
-            template: '<section id="slideshow"><div id="slide-container" ng-class="animateSlideCss"></div><button id="slide-next" class="nav-arrow" ng-click="nextSlide()"></button><button id="slide-previous" class="nav-arrow" ng-click="prevSlide()"></button><nav class="pagination"><iln-slideshow-pagination></iln-slideshow-pagination></nav></section>',
+            template: '<section id="iln-slideshow"><div id="iln-slide-container" ng-class="animateSlideCss"></div><button id="iln-slide-next" class="nav-arrow" ng-click="nextSlide()"></button><button id="iln-slide-previous" class="nav-arrow" ng-click="previousSlide()"></button><nav class="pagination"><iln-slideshow-pagination></iln-slideshow-pagination></nav></section>',
             scope: { SLIDES_JSON: '&slideJson' }
 
         };
