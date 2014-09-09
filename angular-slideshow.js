@@ -109,12 +109,8 @@ angular.module('iln-slideshow', [])
 
             $scope.animateSlideCss = '';
 
-
-            // load first slide
             $scope.init = function(){
-                // set the slideshow data
-                // when complete call the first slide
-
+                // if there images to preload
                 if( $scope.SLIDES_JSON().images ){
                     preloadImages( $scope.SLIDES_JSON().images );
                 }
@@ -127,7 +123,6 @@ angular.module('iln-slideshow', [])
 
             // call the next slide
             $scope.nextSlide = function(){
-                console.log('press');
                 if( !slide_transitioning ){
                     slide_transitioning = true;
                     $IlnSlideshow.callNextSlide();
@@ -145,11 +140,7 @@ angular.module('iln-slideshow', [])
             // animatie out the current slde
             $scope.animateOutCurrentSlide = function(){
                 // css animate out the slide
-                $scope.animateSlideCss = 'slide-animate-out';
-
-                // animation out offset
-                // var animationOutOffset = ( slide_data[ current_slide ].out_offset ) ? 1000 : 1000;
-                // console.log( animationOutOffset );
+                $scope.animateSlideCss = 'iln-slide-animate-out';
 
                 $timeout(function(){
                     // remove the css
@@ -179,9 +170,6 @@ angular.module('iln-slideshow', [])
             $scope.animateInNextSlide = function( _next ){
                 // set the new current slide
                 $IlnSlideshow.setCurrentSlide( _next );
-                // add in the new directive
-                console.log('add');
-                console.log($IlnSlideshow.getSlideData( $IlnSlideshow.getCurrentSlide() ));
 
                 angular.element(
                     document.getElementById('iln-slide-container')
@@ -199,9 +187,9 @@ angular.module('iln-slideshow', [])
                 $timeout(function(){
                     slide_transitioning = false;
                     // set the animation
-                    $scope.animateSlideCss = 'slide-animate-in';
+                    $scope.animateSlideCss = 'iln-slide-animate-in';
                     // broadcast global slide complete
-                    $rootScope.$broadcast('slideTransitionComplete', $IlnSlideshow.getCurrentSlide() );
+                    // $rootScope.$broadcast('slideTransitionComplete', $IlnSlideshow.getCurrentSlide() );
                 }, 10);
 
             };
@@ -219,7 +207,6 @@ angular.module('iln-slideshow', [])
                 }else{
                     $scope.animateOutCurrentSlide();
                 }
-
             });
 
 
