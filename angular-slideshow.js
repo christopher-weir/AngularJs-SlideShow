@@ -14,10 +14,6 @@ angular.module('iln-slideshow', [])
             var minSlides       = 0;
 
             // Slideshow factory functions
-            function slideShow() {
-                console.log('the');
-            }
-
             function setSlideShowData( _data ){
                 slideData = _data;
                 console.log( slideData );
