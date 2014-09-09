@@ -225,21 +225,23 @@ angular.module('iln-slideshow', [])
 
             // preload images
             function preloadImages( _data ){
+
+                // add a holder for the preloader
+                angular.element(
+                    document.body
+                ).append('<div id="iln-img-preload" style="display:none;"></div>');
+
                 var slideImages = _data;
-
-                console.log(slideImages);
-
                 for( var i = 0; i < slideImages.length; i++ ){
                     angular.element(
-                        document.getElementById('img-preload')
+                        document.getElementById('iln-img-preload')
                     ).append('<img src="' + slideImages[i] + '" width="1" height="1"></img>');
 
                     // remove container on last image
                     if( i === slideImages.length - 1 ){
                         angular.element(
-                            document.getElementById('img-preload')
+                            document.getElementById('iln-img-preload')
                         ).remove();
-                        console.log('remove');
                     }
                 }
             }
