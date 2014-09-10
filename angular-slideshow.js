@@ -155,9 +155,9 @@ angular.module('iln-slideshow', [])
         function( $scope, $compile, $timeout, $rootScope, $IlnSlideshow ) {
 
             var slide_transitioning = false;
-            var slide_init  = true;
+            var slide_init          = true;
 
-            $scope.animateSlideCss = '';
+            $scope.animateSlideCss  = '';
 
             $scope.init = function(){
                 // if there images to preload
@@ -173,18 +173,12 @@ angular.module('iln-slideshow', [])
 
             // call the next slide
             $scope.nextSlide = function(){
-                if( !slide_transitioning ){
-                    slide_transitioning = true;
-                    $IlnSlideshow.callNextSlide();
-                }
+                $IlnSlideshow.callNextSlide();
             };
 
             // call the next slide
             $scope.previousSlide = function(){
-                if( !slide_transitioning ){
-                    slide_transitioning = true;
-                    $IlnSlideshow.callPreviousSlide();
-                }
+                $IlnSlideshow.callPreviousSlide();
             };
 
             // animatie out the current slde
@@ -246,16 +240,14 @@ angular.module('iln-slideshow', [])
 
             // jump to a specific slide
             $scope.$on( 'IlnSlideshowGoToSlide', function( _s, _data ){
-                // next_slide = _data;
-
-                // slide_transitioning = true;
-                // $scope.animateOutCurrentSlide();
-
-                if( slide_init ){
-                    slide_init = false;
-                    $scope.animateInNextSlide( _data );
-                }else{
-                    $scope.animateOutCurrentSlide();
+                if( !slide_transitioning ){
+                    slide_transitioning = true;
+                    if( slide_init ){
+                        slide_init = false;
+                        $scope.animateInNextSlide( _data );
+                    }else{
+                        $scope.animateOutCurrentSlide();
+                    }
                 }
             });
 
@@ -289,6 +281,7 @@ angular.module('iln-slideshow', [])
     ])
     /**
      * The controller for the pagination navigation
+     * TODO update the pagination
      */
     .controller( 'IlnSlideshowPaginationCtrl', [
         '$scope',
