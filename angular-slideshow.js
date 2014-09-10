@@ -61,6 +61,17 @@ angular.module('iln-slideshow', [])
             }
 
             /**
+             * Return the data of all the slides
+             * @name getSlides
+             * @param {number} _slide - the number of the slide
+             * @return {object} slides - the single slide
+             *
+             */
+            function getSlideshowData(){
+                return slides;
+            }
+
+            /**
              * Get the current slide number
              * @name getCurrentSlide
              * @return {number} currentSlide
@@ -129,10 +140,11 @@ angular.module('iln-slideshow', [])
 
             var service = {
                 setSlideData            : setSlideData,
+                getSlideshowData        : getSlideshowData,
                 getSlideData            : getSlideData,
                 setCurrentSlide         : setCurrentSlide,
-                getCurrentSlide         : getCurrentSlide,
                 setNextSlide            : setNextSlide,
+                getCurrentSlide         : getCurrentSlide,
                 getNextSlide            : getNextSlide,
                 callNextSlide           : callNextSlide,
                 callPreviousSlide       : callPreviousSlide,
@@ -233,7 +245,7 @@ angular.module('iln-slideshow', [])
                     // set the animation
                     $scope.animateSlideCss = 'iln-slide-animate-in';
                     // broadcast global slide complete
-                    // $rootScope.$broadcast('slideTransitionComplete', $IlnSlideshow.getCurrentSlide() );
+                    $rootScope.$broadcast('IlnSlideshowTransitionComplete', $IlnSlideshow.getCurrentSlide() );
                 }, 10);
 
             };
@@ -286,19 +298,21 @@ angular.module('iln-slideshow', [])
     .controller( 'IlnSlideshowPaginationCtrl', [
         '$scope',
         '$rootScope',
-        function( $scope, $rootScope ) {
+        '$IlnSlideshow',
+        function( $scope, $rootScope, $IlnSlideshow ) {
 
-            $scope.slide_data = {};
+            $scope.slide_data = [];
             $scope.current_slide = 0;
 
             $scope.init = function(){
-                // $scope.slide_data = $rootScope.SLIDES_JSON.slides;
+                $scope.slide_data = $IlnSlideshow.getSlideshowData();
             };
 
             $scope.goToSlide = function( _index ){
-
                 if( $scope.current_slide !== _index ){
-                    $rootScope.$broadcast('jumpToSlide', _index);
+                    $scope.current_slide = _index;
+                    $IlnSlideshow.setNextSlide( _index );
+                    $IlnSlideshow.goToSlide( _index );
                 }
             };
 
@@ -310,8 +324,7 @@ angular.module('iln-slideshow', [])
                 }
             };
 
-            $scope.$on( 'slideTransitionComplete', function( _s, _data ){
-
+            $scope.$on( 'IlnSlideshowTransitionComplete', function( _s, _data ){
                 $scope.current_slide = _data;
             });
 
@@ -339,7 +352,7 @@ angular.module('iln-slideshow', [])
         return {
             restrict: 'E',
             controller: 'IlnSlideshowCtrl',
-            template: '<section id="iln-slideshow"><div id="iln-slide-container" ng-class="animateSlideCss"></div><button id="iln-slide-next" class="nav-arrow" ng-click="nextSlide()"></button><button id="iln-slide-previous" class="nav-arrow" ng-click="previousSlide()"></button><nav class="pagination"><iln-slideshow-pagination></iln-slideshow-pagination></nav></section>',
+            template: '<section id="iln-slideshow"><div id="iln-slide-container" ng-class="animateSlideCss"></div><button id="iln-slide-next" class="nav-arrow" ng-click="nextSlide()"></button><button id="iln-slide-previous" class="nav-arrow" ng-click="previousSlide()"></button><nav id="iln-pagination"><iln-slideshow-pagination></iln-slideshow-pagination></nav></section>',
             scope: { SLIDES_JSON: '&slideJson' }
 
         };
@@ -351,7 +364,7 @@ angular.module('iln-slideshow', [])
         return {
             restrict: 'E',
             controller: 'IlnSlideshowPaginationCtrl',
-            template: '<div></div>'
+            template: '<ul><li ng-repeat="slide in slide_data" ng-click="goToSlide( $index )" ng-class="isActive( $index )"></li></ul>'
         };
     })
     /**
