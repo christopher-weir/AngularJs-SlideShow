@@ -8,4 +8,4 @@ I know slideshows / carousels are a dime a dozen. For a project I need a slidesh
 ___
 
 ###Demo
-You can have a look at a basic demo (here)['http://christopher-weir.com/demos/AngularJs-SlideShow/index.html']
+You can have a look at a basic demo [here](http://christopher-weir.com/demos/AngularJs-SlideShow/index.html)
