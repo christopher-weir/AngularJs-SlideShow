@@ -172,11 +172,6 @@ angular.module('iln-slideshow', [])
             $scope.animateSlideCss  = '';
 
             $scope.init = function(){
-                // if there images to preload
-                if( $scope.SLIDES_JSON().images ){
-                    // preloadImages( $scope.SLIDES_JSON().images );
-                    console.log('preload images');
-                }
 
                 $IlnSlideshow.setSlideData( $scope.SLIDES_JSON().slides, function(){
                     $IlnSlideshow.goToSlide( 0 );
@@ -364,30 +359,29 @@ angular.module('iln-slideshow', [])
         return {
             restrict: 'E',
             link: function ( scope, element, attrs ) {
-
                 /**
                  * Preload images from the slide images array
                  * @name preloadImages
                  * @param {Array} _data - the images to preaload
                  *
                  */
-                function preloadImages( _data ){
+                function preloadImages( _images ){
 
                     // add a holder for the preloader
+                    // if no image holder add it
                     angular.element(
-                        document.body
-                    ).append('<div id="iln-img-preload" style="display:none;"></div>');
+                        document.getElementsByTagName('iln-image-preloader')
+                    ).append('<div id="iln-img-preload-holder" style="display:none;"></div>');
 
-                    var slideImages = _data;
-                    for( var i = 0; i < slideImages.length; i++ ){
+                    for( var i = 0; i < _images.length; i++ ){
                         angular.element(
-                            document.getElementById('iln-img-preload')
-                        ).append('<img src="' + slideImages[i] + '" width="1" height="1"></img>');
+                            document.getElementById('iln-img-preload-holder')
+                        ).append('<img src="' + _images[i] + '" width="1" height="1"></img>');
 
                         // remove container on last image
-                        if( i === slideImages.length - 1 ){
+                        if( i === _images.length - 1 ){
                             angular.element(
-                                document.getElementById('iln-img-preload')
+                                document.getElementsByTagName('iln-image-preloader')
                             ).remove();
                         }
                     }
@@ -395,7 +389,7 @@ angular.module('iln-slideshow', [])
 
                 scope.$watch( attrs.images, function ( _images ) {
 
-                    console.log( _images );
+                    preloadImages(_images.images);
 
                 });
             }
