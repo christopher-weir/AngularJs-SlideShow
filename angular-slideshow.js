@@ -174,7 +174,8 @@ angular.module('iln-slideshow', [])
             $scope.init = function(){
                 // if there images to preload
                 if( $scope.SLIDES_JSON().images ){
-                    preloadImages( $scope.SLIDES_JSON().images );
+                    // preloadImages( $scope.SLIDES_JSON().images );
+                    console.log('preload images');
                 }
 
                 $IlnSlideshow.setSlideData( $scope.SLIDES_JSON().slides, function(){
@@ -262,30 +263,6 @@ angular.module('iln-slideshow', [])
                     }
                 }
             });
-
-
-            // preload images
-            function preloadImages( _data ){
-
-                // add a holder for the preloader
-                angular.element(
-                    document.body
-                ).append('<div id="iln-img-preload" style="display:none;"></div>');
-
-                var slideImages = _data;
-                for( var i = 0; i < slideImages.length; i++ ){
-                    angular.element(
-                        document.getElementById('iln-img-preload')
-                    ).append('<img src="' + slideImages[i] + '" width="1" height="1"></img>');
-
-                    // remove container on last image
-                    if( i === slideImages.length - 1 ){
-                        angular.element(
-                            document.getElementById('iln-img-preload')
-                        ).remove();
-                    }
-                }
-            }
 
             // init the directive
             $scope.init();
@@ -376,6 +353,51 @@ angular.module('iln-slideshow', [])
             controller: 'IlnSlideshowSlideCtrl',
             templateUrl: function( elem, attrs ) {
                return attrs.templateUrl || 'slides/slide.html';
+            }
+        };
+    })
+
+    /**
+     * image preloader
+     */
+    .directive('ilnImagePreloader', function() {
+        return {
+            restrict: 'E',
+            link: function ( scope, element, attrs ) {
+
+                /**
+                 * Preload images from the slide images array
+                 * @name preloadImages
+                 * @param {Array} _data - the images to preaload
+                 *
+                 */
+                function preloadImages( _data ){
+
+                    // add a holder for the preloader
+                    angular.element(
+                        document.body
+                    ).append('<div id="iln-img-preload" style="display:none;"></div>');
+
+                    var slideImages = _data;
+                    for( var i = 0; i < slideImages.length; i++ ){
+                        angular.element(
+                            document.getElementById('iln-img-preload')
+                        ).append('<img src="' + slideImages[i] + '" width="1" height="1"></img>');
+
+                        // remove container on last image
+                        if( i === slideImages.length - 1 ){
+                            angular.element(
+                                document.getElementById('iln-img-preload')
+                            ).remove();
+                        }
+                    }
+                }
+
+                scope.$watch( attrs.images, function ( _images ) {
+
+                    console.log( _images );
+
+                });
             }
         };
     })
