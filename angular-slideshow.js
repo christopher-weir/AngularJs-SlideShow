@@ -179,17 +179,29 @@ angular.module('iln-slideshow', [])
 
             };
 
-            // call the next slide
+            /**
+             * Call the next slide
+             * @name $scope.nextSlide
+             *
+             */
             $scope.nextSlide = function(){
                 $IlnSlideshow.callNextSlide();
             };
 
-            // call the next slide
+            /**
+             * Call the previous slide
+             * @name $scope.previousSlide
+             *
+             */
             $scope.previousSlide = function(){
                 $IlnSlideshow.callPreviousSlide();
             };
 
-            // animatie out the current slde
+            /**
+             * Animatie out the current slde
+             * @name $scope.animateOutCurrentSlide
+             *
+             */
             $scope.animateOutCurrentSlide = function(){
                 // css animate out the slide
                 $scope.animateSlideCss = 'iln-slide-animate-out';
@@ -200,10 +212,13 @@ angular.module('iln-slideshow', [])
                     // slide has animated out remove current slide
                     $scope.removeSlide();
                 }, 1000);
-
             };
 
-            // fully remove the current slide from the dom
+            /**
+             * Fully remove the current slide
+             * @name $scope.removeSlide
+             *
+             */
             $scope.removeSlide = function(){
 
                 // remove and clear current slide
@@ -218,7 +233,12 @@ angular.module('iln-slideshow', [])
                 }, 10);
             };
 
-            // animate in the next slide
+            /**
+             * Animate in the next slide
+             * @name $scope.animateInNextSlide
+             * @param {number} _next - the next slide
+             *
+             */
             $scope.animateInNextSlide = function( _next ){
                 // set the new current slide
                 $IlnSlideshow.setCurrentSlide( _next );
@@ -235,7 +255,7 @@ angular.module('iln-slideshow', [])
 
                         '"></iln-slideshow-slide>')($scope));
 
-                // give the dom some time to click over and add in the animation
+                // some time to click over and add in the animation
                 $timeout(function(){
                     slide_transitioning = false;
                     // set the animation
@@ -245,8 +265,12 @@ angular.module('iln-slideshow', [])
                 }, 10);
 
             };
-
-            // jump to a specific slide
+            
+            /**
+             * Jump to a specific slide
+             * @name IlnSlideshowGoToSlide
+             *
+             */
             $scope.$on( 'IlnSlideshowGoToSlide', function( _s, _data ){
                 if( !slide_transitioning ){
                     slide_transitioning = true;
